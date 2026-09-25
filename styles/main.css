@@ -1,0 +1,197 @@
+@font-face {
+  font-family: 'Fredoka';
+  src: url('../assets/fonts/fredoka-600.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Safe-area insets (notches, rounded corners, home indicator) */
+:root {
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #04060c;
+  color: #eaf2ff;
+  font-family: 'Fredoka', 'Trebuchet MS', system-ui, sans-serif;
+  touch-action: none;
+  overscroll-behavior: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+/* The game and its touch controls share one box that stays clear of the
+   safe-area insets; main.js sizes the canvas to the same box. */
+#game, #touch {
+  position: fixed;
+  top: var(--safe-t);
+  right: var(--safe-r);
+  bottom: var(--safe-b);
+  left: var(--safe-l);
+}
+
+#game canvas {
+  display: block;
+  outline: none;
+}
+
+/* ---------------------------------------------------------- loading screen */
+
+#loader {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  background: radial-gradient(ellipse at 50% 40%, #13244a 0%, #070b18 60%, #04060c 100%);
+  z-index: 50;
+  transition: opacity 0.5s ease;
+}
+
+#loader.done { opacity: 0; pointer-events: none; }
+
+#loader .logo {
+  font-size: clamp(30px, 7vw, 64px);
+  letter-spacing: 0.18em;
+  color: #eaf2ff;
+  text-shadow: 0 0 18px rgba(92, 225, 255, 0.55);
+  position: relative;
+}
+
+#loader .logo::after {
+  content: '';
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  bottom: -10px;
+  height: 3px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, transparent, #5ce1ff, transparent);
+  animation: trace 1.6s ease-in-out infinite;
+}
+
+#loader .bar {
+  width: min(260px, 60vw);
+  height: 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+#loader .bar i {
+  display: block;
+  height: 100%;
+  width: 40%;
+  border-radius: 6px;
+  background: #5ce1ff;
+  animation: load 1.1s ease-in-out infinite;
+}
+
+@keyframes load { 0% { transform: translateX(-100%); } 100% { transform: translateX(260%); } }
+@keyframes trace { 0%, 100% { opacity: 0.35; transform: scaleX(0.4); } 50% { opacity: 1; transform: scaleX(1); } }
+
+/* ---------------------------------------------------------- touch controls */
+
+#touch {
+  display: none;
+  pointer-events: none;
+  z-index: 10;
+  --u: 72px;
+}
+
+#touch.inactive .tpanel { opacity: 0.25; }
+
+.tpanel {
+  position: absolute;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+.dpad, .tbtn {
+  position: absolute;
+  pointer-events: auto;
+  touch-action: none;
+  box-sizing: border-box;
+  color: #eaf2ff;
+  background: rgba(10, 14, 26, 0.72);
+  border: 2px solid rgba(140, 170, 230, 0.45);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.dpad {
+  display: flex;
+  width: calc(var(--u) * 2.3);
+  height: calc(var(--u) * 1.15);
+  border-radius: calc(var(--u) * 0.58);
+  overflow: hidden;
+}
+
+.dhalf {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.06s;
+}
+
+.dhalf + .dhalf { border-left: 2px solid rgba(140, 170, 230, 0.25); }
+.dhalf svg { width: 46%; height: 46%; }
+.dhalf.on { background: rgba(92, 225, 255, 0.28); }
+
+.tbtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: transform 0.06s, background 0.06s;
+}
+
+.tbtn svg { width: 52%; height: 52%; }
+.tbtn.on { transform: scale(0.93); background: rgba(92, 225, 255, 0.3); }
+
+.tjump { width: calc(var(--u) * 1.3); height: calc(var(--u) * 1.3); }
+.tuse { width: calc(var(--u) * 1.05); height: calc(var(--u) * 1.05); }
+.trewind { width: calc(var(--u) * 0.85); height: calc(var(--u) * 0.85); border-color: rgba(92, 225, 255, 0.6); }
+
+.hint { animation: hint 0.9s ease-in-out infinite; }
+@keyframes hint {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 214, 107, 0.0), 0 4px 0 rgba(0, 0, 0, 0.35); border-color: rgba(255, 214, 107, 0.9); }
+  50% { box-shadow: 0 0 0 10px rgba(255, 214, 107, 0.25), 0 4px 0 rgba(0, 0, 0, 0.35); border-color: rgba(255, 214, 107, 1); }
+}
+
+/* Side panels (landscape phones): d-pad left, actions right */
+#touch[data-mode='side'] .dpad { left: 50%; bottom: calc(var(--u) * 0.35); transform: translateX(-50%); width: calc(100% - 14px); max-width: calc(var(--u) * 2.3); }
+#touch[data-mode='side'] .tjump { right: calc(var(--u) * 0.15); bottom: calc(var(--u) * 0.3); }
+#touch[data-mode='side'] .tuse { right: calc(var(--u) * 0.45); bottom: calc(var(--u) * 1.75); }
+#touch[data-mode='side'] .trewind { right: calc(var(--u) * 0.6); top: calc(var(--u) * 0.2); }
+
+/* Bottom band (tablets) and portrait */
+#touch[data-mode='bottom'] .dpad, #touch[data-mode='portrait'] .dpad { left: calc(var(--u) * 0.4); bottom: calc(var(--u) * 0.35); }
+#touch[data-mode='bottom'] .tjump, #touch[data-mode='portrait'] .tjump { right: calc(var(--u) * 0.35); bottom: calc(var(--u) * 0.3); }
+#touch[data-mode='bottom'] .tuse, #touch[data-mode='portrait'] .tuse { right: calc(var(--u) * 1.85); bottom: calc(var(--u) * 0.2); }
+#touch[data-mode='bottom'] .trewind, #touch[data-mode='portrait'] .trewind { right: calc(var(--u) * 1.95); bottom: calc(var(--u) * 1.45); }
+
+.rotate-hint {
+  display: none;
+  position: absolute;
+  left: 50%;
+  width: 64px;
+  height: 64px;
+  margin-left: -32px;
+  color: rgba(234, 242, 255, 0.45);
+  animation: rot 2.4s ease-in-out infinite;
+}
+@keyframes rot { 0%, 30% { transform: rotate(0deg); } 60%, 100% { transform: rotate(-90deg); } }
