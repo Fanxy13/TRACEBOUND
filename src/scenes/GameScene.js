@@ -102,7 +102,27 @@ export class GameScene extends Phaser.Scene {
       Poki.measure('world', def.world, 'start', true);
     } else if (def.echoes >= 2 && P.setFlag('echoes' + def.echoes)) {
       App.bus.emit('banner', { kind: 'echo', n: def.echoes });
+    } else {
+      const fresh = this.newMechanic(def, world);
+      if (fresh) this.time.delayedCall(350, () => App.bus.emit('banner', { kind: 'new', icon: fresh }));
     }
+  }
+
+  /** First time a mechanic shows up: announce it with its icon. */
+  newMechanic(def, world) {
+    const P = App.progress;
+    const kinds = [];
+    if (world.bridges.length) kinds.push(['bridge', 'bridge']);
+    if (world.lifts.length) kinds.push(['lift', 'lift']);
+    if (world.cores.length) kinds.push(['core', 'core']);
+    if (world.triggers.some((t) => t.kind === 'button')) kinds.push(['button', 'clock']);
+    if (world.receivers.some((r) => r.cycle)) kinds.push(['cycle', 'w3']);
+    if (world.lasers.length) kinds.push(['laser', 'laser']);
+    if (world.receivers.some((r) => r.hist)) kinds.push(['delay', 'hourglass']);
+    if (def.mirror) kinds.push(['mirror', 'w5']);
+    let icon = null;
+    for (const [k, ic] of kinds) if (P.setFlag('seen_' + k) && !icon) icon = ic;
+    return icon;
   }
 
   clearLevel() {
@@ -597,6 +617,12 @@ export class GameScene extends Phaser.Scene {
     const cam = this.cameras.main;
     cam.setZoom(this.zoomBase * (1 + this.punch));
     const nx = (p.x + p.w / 2) / this.roomW, ny = (p.y + p.h / 2) / this.roomH;
+    if (this.camCenter) {
+      const tx = this.camCenter.x + (nx - 0.5) * 18, ty = this.camCenter.y + (ny - 0.5) * 10;
+      this.camX = this.camX === undefined ? tx : this.camX + (tx - this.camX) * Math.min(1, dt * 3);
+      this.camY = this.camY === undefined ? ty : this.camY + (ty - this.camY) * Math.min(1, dt * 3);
+      cam.centerOn(this.camX, this.camY);
+    }
     App.bus.emit('focus', nx, ny);
   }
 
@@ -647,6 +673,7 @@ export class GameScene extends Phaser.Scene {
     const cy = this.roomH / 2 + (H / 2 - (play.y + play.h / 2)) / z;
     cam.centerOn(cx, cy);
     this.camCenter = { x: cx, y: cy };
+    this.camX = this.camY = undefined;
     if (rebake && this.def && this.back) {
       const s = this.pickBakeScale();
       if (Math.abs(s - this.bakeScale) >= 0.25) {

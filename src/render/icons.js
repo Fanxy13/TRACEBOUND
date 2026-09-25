@@ -35,20 +35,29 @@ function silhouette(ctx, x, y, s, holo) {
   ctx.save();
   ctx.translate(x, y);
   ctx.scale(s, s);
+  // Water-drop body whose tip turns into the light thread
   ctx.beginPath();
-  ctx.moveTo(-15, 20);
-  ctx.lineTo(-15, -6);
-  ctx.quadraticCurveTo(-15, -24, 0, -24);
-  ctx.quadraticCurveTo(15, -24, 15, -6);
-  ctx.lineTo(15, 20);
-  ctx.quadraticCurveTo(10, 14, 5, 20);
-  ctx.quadraticCurveTo(0, 14, -5, 20);
-  ctx.quadraticCurveTo(-10, 14, -15, 20);
+  ctx.moveTo(0, -26);
+  ctx.bezierCurveTo(6, -17, 17, -10, 17, 3);
+  ctx.bezierCurveTo(17, 13, 10, 18, 0, 18);
+  ctx.bezierCurveTo(-10, 18, -17, 13, -17, 3);
+  ctx.bezierCurveTo(-17, -10, -6, -17, 0, -26);
   ctx.closePath();
   if (holo) { stroke(ctx, 5); } else fill(ctx);
+  ctx.beginPath();
+  ctx.moveTo(0, -26);
+  ctx.quadraticCurveTo(-2, -34, -10, -34);
+  ctx.strokeStyle = W;
+  ctx.lineWidth = 3.5;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(-11, -34, 5, 0, Math.PI * 2);
+  ctx.fillStyle = W;
+  ctx.fill();
   ctx.globalCompositeOperation = holo ? 'source-over' : 'destination-out';
   ctx.beginPath();
-  ctx.ellipse(3, -6, 8, 4, 0, 0, Math.PI * 2);
+  ctx.arc(3, 1, 6.5, 0, Math.PI * 2);
   ctx.fillStyle = W;
   ctx.fill();
   ctx.restore();
@@ -196,6 +205,25 @@ export const ICONS = {
     ctx.beginPath(); ctx.arc(34, 50, 16, Math.PI * 0.35, Math.PI * 1.65); stroke(ctx, 8);
     ctx.beginPath(); ctx.arc(66, 50, 16, -Math.PI * 0.65, Math.PI * 0.65); stroke(ctx, 8);
     ctx.beginPath(); ctx.moveTo(46, 22); ctx.lineTo(52, 36); ctx.moveTo(54, 78); ctx.lineTo(48, 64); stroke(ctx, 6);
+  },
+  bridge(ctx) {
+    ctx.fillStyle = W;
+    for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.roundRect(10 + i * 28, 44, 24, 24, 4); ctx.fill(); }
+    ctx.beginPath(); ctx.moveTo(10, 34); ctx.lineTo(90, 34); stroke(ctx, 5);
+    ctx.globalAlpha = 0.6; ctx.beginPath(); ctx.moveTo(20, 80); ctx.lineTo(80, 80); stroke(ctx, 5); ctx.globalAlpha = 1;
+  },
+  lift(ctx) {
+    ctx.beginPath(); ctx.roundRect(18, 58, 64, 14, 5); fill(ctx);
+    ctx.beginPath(); ctx.moveTo(50, 48); ctx.lineTo(50, 12); ctx.moveTo(36, 26); ctx.lineTo(50, 12); ctx.lineTo(64, 26); stroke(ctx, 8);
+    ctx.beginPath(); ctx.moveTo(50, 80); ctx.lineTo(50, 92); stroke(ctx, 8);
+  },
+  core(ctx) {
+    ctx.beginPath(); for (let i = 0; i < 6; i++) { const a = Math.PI / 6 + (i * Math.PI) / 3; ctx.lineTo(50 + Math.cos(a) * 36, 50 + Math.sin(a) * 36); } ctx.closePath(); fill(ctx);
+    ctx.globalCompositeOperation = 'destination-out'; ctx.beginPath(); ctx.arc(50, 50, 12, 0, Math.PI * 2); ctx.fill(); ctx.globalCompositeOperation = 'source-over';
+  },
+  laser(ctx) {
+    ctx.beginPath(); ctx.moveTo(50, 8); ctx.lineTo(38, 30); ctx.lineTo(60, 44); ctx.lineTo(40, 60); ctx.lineTo(60, 74); ctx.lineTo(50, 92); stroke(ctx, 8);
+    ctx.fillStyle = W; ctx.fillRect(30, 4, 40, 8); ctx.fillRect(30, 88, 40, 8);
   },
   // World glyphs
   w1(ctx) {

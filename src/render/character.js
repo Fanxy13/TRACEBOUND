@@ -30,7 +30,7 @@ export class CharacterView {
     this.footB = scene.add.image(0, 0, '__DEFAULT').setScale(INV);
     this.rig = scene.add.container(0, 0);
     this.body = scene.add.image(0, 0, '__DEFAULT').setOrigin(0.5, 1).setScale(INV);
-    this.visor = scene.add.image(2, -22, '__DEFAULT').setScale(INV);
+    this.visor = scene.add.image(2, -19, '__DEFAULT').setScale(INV);
     this.rig.add([this.body, this.visor]);
     this.footF = scene.add.image(0, 0, '__DEFAULT').setScale(INV);
     this.beadGlow = scene.add.image(0, 0, 'glow').setBlendMode(ADD).setScale(0.22).setAlpha(0.6);
@@ -170,7 +170,7 @@ export class CharacterView {
     if (this.blinkAt <= 0) { this.blink = 0.1; this.blinkAt = 2.2 + Math.random() * 3.5; }
     if (this.blink > 0) this.blink -= dt;
     const look = Math.max(-2, Math.min(2, vy / 300));
-    this.visor.setPosition(2.5, -22 + look * 0.6);
+    this.visor.setPosition(2.5, -19 + look * 0.6);
     this.visor.setScale(INV, INV * (this.blink > 0 ? 0.18 : 1));
     if (this.flash > 0) {
       this.flash = Math.max(0, this.flash - dt * 4);
@@ -181,7 +181,7 @@ export class CharacterView {
 
     // Antenna thread: head anchor in world space, bead on a spring
     const cos = Math.cos(lean), sin = Math.sin(lean);
-    const hx = 0, hy = -33 * sy + bob;
+    const hx = 0, hy = -(this.art.anchor || 33) * sy + bob;
     const ax = hx * cos - hy * sin;
     const ay = hx * sin + hy * cos;
     const rod = this.art.rod;

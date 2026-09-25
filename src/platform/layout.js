@@ -52,10 +52,10 @@ export function computeLayout(W, H, touch, uiCss = 1) {
   return { W, H, hudH, play, panels, touch };
 }
 
-export function pickResolution(W, H) {
+export function pickResolution(W, H, touch) {
   let dpr = Math.min(window.devicePixelRatio || 1, 2);
-  // Cap the backing store so large desktop screens stay fast
-  const maxPixels = 3.6e6;
+  // Cap the backing store so big screens and phones stay fast (fill rate)
+  const maxPixels = touch ? 2.1e6 : 3.2e6;
   if (W * H * dpr * dpr > maxPixels) dpr = Math.sqrt(maxPixels / (W * H));
   return Math.max(0.75, dpr);
 }

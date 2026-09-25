@@ -55,10 +55,10 @@ export class BgScene extends Phaser.Scene {
 
     // Haze blobs
     const r = seeded(w * 97);
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 3; i++) {
       const img = this.add.image(0, 0, 'glow').setTint(hexNum(th.haze)).setBlendMode(ADD).setDepth(2).setAlpha(0);
       const layer = {
-        obj: img, fx: r(), fy: r(), sp: 0.04 + r() * 0.06, ph: r() * 6, size: 0.5 + r() * 0.5,
+        obj: img, fx: r(), fy: r(), sp: 0.04 + r() * 0.06, ph: r() * 6, size: 0.4 + r() * 0.4,
         place: (W2, H2) => img.setScale((Math.max(W2, H2) / 128) * layer.size),
       };
       layer.place(W, H);
@@ -68,7 +68,7 @@ export class BgScene extends Phaser.Scene {
     // Decor silhouettes
     const dkey = 'bg_decor_' + w;
     if (!this.textures.exists(dkey)) bake(this, dkey, 512, 512, (ctx) => drawDecor(ctx, th));
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 2; i++) {
       const img = this.add.image(0, 0, dkey).setDepth(3).setAlpha(0);
       const layer = {
         obj: img, fx: [0.12, 0.86, 0.55][i], fy: [0.3, 0.72, 0.1][i], sp: 0, ph: i * 2, size: [0.9, 1.3, 0.6][i],

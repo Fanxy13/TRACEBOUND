@@ -24,7 +24,7 @@ function applyLayout() {
   const touch = App.input.mode === 'touch';
   const uiCss = Math.max(0.72, Math.min(1.35, Math.min(W / 820, H / 480)));
   App.layout = computeLayout(W, H, touch, uiCss);
-  App.dpr = pickResolution(W, H);
+  App.dpr = pickResolution(W, H, touch);
   App.ui = uiCss * App.dpr;
   App.touch.place(App.layout);
   return { W, H };

@@ -11,9 +11,9 @@ const S = PART_SCALE;
 
 export const SKIN_ART = {
   tracer: {
-    shape: 'capsule', top: '#3a5288', bot: '#1a2340', line: '#080d1c', band: '#7ff0ff',
-    visor: 'pill', visorCol: '#9ff7ff', foot: '#0c1224', bead: '#7ff0ff', thread: '#7ff0ff', rim: '#8fb4ff',
-    particle: 0x7ff0ff,
+    shape: 'drop', top: '#3d5a94', bot: '#18203c', line: '#080d1c', band: '#7ff0ff',
+    visor: 'eye', visorCol: '#9ff7ff', foot: '#0c1224', bead: '#7ff0ff', thread: '#7ff0ff', rim: '#8fb4ff',
+    particle: 0x7ff0ff, anchor: 37,
   },
   ghost: {
     shape: 'sheet', top: '#f4f7ff', bot: '#c3cdeb', line: '#5c6892', band: null,
@@ -32,18 +32,18 @@ export const SKIN_ART = {
   },
   crystal: {
     shape: 'facet', top: '#8ffbef', bot: '#1c7f86', line: '#0c4a50', band: null,
-    visor: 'pill', visorCol: '#f0ffff', foot: '#11666c', bead: '#c8fff8', thread: '#8ffbef', rim: '#ffffff',
+    visor: 'gem', visorCol: '#f0ffff', foot: '#11666c', bead: '#c8fff8', thread: '#8ffbef', rim: '#ffffff',
     particle: 0x9ffff0,
   },
   energy: {
-    shape: 'capsule', top: '#ffd05a', bot: '#e0661a', line: '#6e2a05', band: '#fff4b8',
-    visor: 'pill', visorCol: '#fffbe8', foot: '#8a3a0a', bead: '#fff07a', thread: '#ffc24a', rim: '#fff4c2',
-    particle: 0xffd45a, core: true,
+    shape: 'flame', top: '#ffd05a', bot: '#e0661a', line: '#6e2a05', band: '#fff4b8',
+    visor: 'eye', visorCol: '#fffbe8', foot: '#8a3a0a', bead: '#fff07a', thread: '#ffc24a', rim: '#fff4c2',
+    particle: 0xffd45a, core: true, anchor: 38,
   },
   cosmic: {
-    shape: 'capsule', top: '#3a2a86', bot: '#0d0a2a', line: '#04020d', band: '#ff9ae0',
+    shape: 'orb', top: '#3a2a86', bot: '#0d0a2a', line: '#04020d', band: '#ff9ae0',
     visor: 'nebula', visorCol: '#ff8ad8', foot: '#0a0720', bead: '#ffffff', thread: '#a58cff', rim: '#9ee7ff',
-    particle: 0xc9b8ff, stars: true,
+    particle: 0xc9b8ff, stars: true, anchor: 33,
   },
 };
 
@@ -70,6 +70,26 @@ function bodyPath(ctx, shape) {
       ctx.bezierCurveTo(-14, -37, 14, -37, 13, -22);
       ctx.lineTo(9, -4);
       ctx.quadraticCurveTo(0, -1, -9, -4);
+      break;
+    case 'drop':
+      // Water-drop body: the tip becomes the light thread
+      ctx.moveTo(0, -38);
+      ctx.bezierCurveTo(5, -31, 14, -24, 14, -14);
+      ctx.bezierCurveTo(14, -7, 9, -4, 0, -4);
+      ctx.bezierCurveTo(-9, -4, -14, -7, -14, -14);
+      ctx.bezierCurveTo(-14, -24, -5, -31, 0, -38);
+      break;
+    case 'flame':
+      ctx.moveTo(0, -39);
+      ctx.bezierCurveTo(3, -33, 8, -34, 7, -27);
+      ctx.bezierCurveTo(12, -24, 14, -19, 14, -14);
+      ctx.bezierCurveTo(14, -7, 9, -4, 0, -4);
+      ctx.bezierCurveTo(-9, -4, -14, -7, -14, -14);
+      ctx.bezierCurveTo(-14, -22, -9, -26, -6, -29);
+      ctx.bezierCurveTo(-5, -34, -2, -34, 0, -39);
+      break;
+    case 'orb':
+      ctx.arc(0, -19, 14.5, 0, Math.PI * 2);
       break;
     case 'facet':
       ctx.moveTo(-11, -4);
@@ -172,7 +192,7 @@ function drawBody(ctx, art, holo, id) {
   if (art.band) {
     ctx.fillStyle = art.band;
     ctx.globalAlpha = 0.85;
-    ctx.fillRect(-14, -12.5, 28, 1.8);
+    ctx.fillRect(-15, -10, 30, 1.8);
     ctx.globalAlpha = 1;
   }
   ctx.restore();
@@ -208,18 +228,25 @@ function drawVisor(ctx, art, holo) {
       break;
     case 'nebula': {
       if (!holo) {
-        const g = ctx.createLinearGradient(-8, 0, 8, 0);
-        g.addColorStop(0, '#ff8ad8'); g.addColorStop(1, '#7fe8ff');
+        const g = ctx.createRadialGradient(-1.5, -1.5, 0.5, 0, 0, 6.5);
+        g.addColorStop(0, '#ffffff'); g.addColorStop(0.35, '#ff8ad8'); g.addColorStop(1, '#7fe8ff');
         ctx.fillStyle = g;
       }
-      ctx.beginPath(); ctx.roundRect(-8, -3.5, 16, 7, 3.5); ctx.fill();
-      ctx.fillStyle = '#ffffff'; ctx.fillRect(3, -1.5, 1.4, 1.4);
+      ctx.beginPath(); ctx.arc(0, 0, 6, 0, Math.PI * 2); ctx.fill();
+      if (!holo) { ctx.fillStyle = '#1b0f3a'; ctx.beginPath(); ctx.arc(1.4, 0.4, 2.2, 0, Math.PI * 2); ctx.fill(); }
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(-2.6, -2.8, 1.5, 1.5);
       break;
     }
-    default:
-      ctx.beginPath(); ctx.roundRect(-8, -3.5, 16, 7, 3.5); ctx.fill();
-      ctx.fillStyle = 'rgba(255,255,255,0.85)';
-      ctx.beginPath(); ctx.roundRect(-5.5, -2.2, 6, 1.6, 0.8); ctx.fill();
+    case 'gem':
+      ctx.beginPath(); ctx.moveTo(0, -5.5); ctx.lineTo(5, 0); ctx.lineTo(0, 5.5); ctx.lineTo(-5, 0); ctx.closePath(); ctx.fill();
+      if (!holo) { ctx.fillStyle = '#0c4a50'; ctx.beginPath(); ctx.moveTo(1.2, -2); ctx.lineTo(3, 0.3); ctx.lineTo(1.2, 2.6); ctx.lineTo(-0.6, 0.3); ctx.closePath(); ctx.fill(); }
+      break;
+    default: // round lens eye
+      if (!holo) { ctx.fillStyle = 'rgba(8,13,28,0.9)'; ctx.beginPath(); ctx.arc(0, 0, 6.6, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = col; }
+      ctx.beginPath(); ctx.arc(0, 0, 5.2, 0, Math.PI * 2); ctx.fill();
+      if (!holo) { ctx.fillStyle = '#0a1830'; ctx.beginPath(); ctx.arc(1.6, 0.4, 2.3, 0, Math.PI * 2); ctx.fill(); }
+      ctx.fillStyle = 'rgba(255,255,255,0.95)';
+      ctx.beginPath(); ctx.arc(-1.6, -1.9, 1.3, 0, Math.PI * 2); ctx.fill();
   }
 }
 
@@ -264,8 +291,8 @@ export function bakeSkin(scene, id) {
     bake(scene, `c_${id}_body${suf}`, 32 * S, 38 * S, (ctx) => {
       ctx.scale(S, S); ctx.translate(16, 38); drawBody(ctx, art, holo, id);
     });
-    bake(scene, `c_${id}_visor${suf}`, 18 * S, 9 * S, (ctx) => {
-      ctx.scale(S, S); ctx.translate(9, 4.5);
+    bake(scene, `c_${id}_visor${suf}`, 18 * S, 16 * S, (ctx) => {
+      ctx.scale(S, S); ctx.translate(9, 8);
       if (!holo) { ctx.shadowColor = art.visorCol; ctx.shadowBlur = 3; }
       drawVisor(ctx, art, holo);
     });
@@ -284,11 +311,12 @@ export function bakePortrait(scene, id, size = 160) {
     ctx.save(); ctx.translate(-5.5, -2.5); drawFoot(ctx, art, false); ctx.restore();
     ctx.save(); ctx.translate(5.5, -2.5); drawFoot(ctx, art, false); ctx.restore();
     drawBody(ctx, art, false, id);
-    ctx.save(); ctx.translate(2, -22); drawVisor(ctx, art, false); ctx.restore();
+    ctx.save(); ctx.translate(2, -19); drawVisor(ctx, art, false); ctx.restore();
+    const an = -(art.anchor || 34);
     ctx.strokeStyle = art.thread; ctx.lineWidth = 1.2; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(0, -34);
-    if (art.rod) ctx.lineTo(-2, -41); else ctx.quadraticCurveTo(-2, -41, -8, -40);
+    ctx.beginPath(); ctx.moveTo(0, an);
+    if (art.rod) ctx.lineTo(-2, an - 7); else ctx.quadraticCurveTo(-2, an - 6, -7, an - 6);
     ctx.stroke();
-    ctx.save(); ctx.translate(art.rod ? -2 : -8, art.rod ? -41 : -40); drawBead(ctx, art, false); ctx.restore();
+    ctx.save(); ctx.translate(art.rod ? -2 : -7, an - 6); drawBead(ctx, art, false); ctx.restore();
   });
 }

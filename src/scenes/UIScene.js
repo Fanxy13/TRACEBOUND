@@ -99,7 +99,7 @@ export class UIScene extends Phaser.Scene {
     c.add(this.add.image(x0 + 20 * u, cy, 'i_' + th.glyph).setScale(20 * u / 96).setTint(hexNum(th.accent)));
     c.add(txt(this, x0 + 58 * u, cy + 1 * u, def.id, 19 * u));
     // Shards + pause (right)
-    const pauseSize = 38;
+    const pauseSize = App.input.mode === 'touch' ? 46 : 38;
     this.pauseBtn = new Button(this, W - 10 * u - (pauseSize * u) / 2, cy, { icon: 'pause', size: pauseSize, iconScale: 0.45, onClick: () => App.bus.emit('cmd', 'pause') });
     c.add(this.pauseBtn);
     const sx = W - 20 * u - pauseSize * u - 88 * u;
@@ -127,7 +127,8 @@ export class UIScene extends Phaser.Scene {
     const avail = this.centerRight - this.centerLeft;
     const slot = 26 * u;
     const nSlots = s.capacity;
-    const btn = 38 * u;
+    const touchUi = App.input.mode === 'touch';
+    const btn = (touchUi ? 44 : 38) * u;
     const showUndo = s.echoes.length > 0;
     let barW = Math.min(260 * u, avail - nSlots * (slot + 4 * u) - btn * (showUndo ? 2.2 : 1.1) - 24 * u);
     barW = Math.max(60 * u, barW);
@@ -155,11 +156,11 @@ export class UIScene extends Phaser.Scene {
     this.tlGfx = this.add.graphics();
     c.add(this.tlGfx);
     x += barW + 12 * u;
-    this.rewindBtn = new Button(this, x + btn / 2, cy, { icon: 'rewind', size: 38, iconScale: 0.52, onClick: () => App.bus.emit('cmd', 'rewind'), key: 'R', fill: 0x14203a, line: this.accent });
+    this.rewindBtn = new Button(this, x + btn / 2, cy, { icon: 'rewind', size: btn / u, iconScale: 0.52, onClick: () => App.bus.emit('cmd', 'rewind'), key: 'R', fill: 0x14203a, line: this.accent });
     c.add(this.rewindBtn);
     x += btn + 8 * u;
     if (showUndo) {
-      this.undoBtn = new Button(this, x + btn * 0.45, cy, { icon: 'undo', size: 34, iconScale: 0.48, onClick: () => App.bus.emit('cmd', 'undo'), key: 'Z' });
+      this.undoBtn = new Button(this, x + btn * 0.45, cy, { icon: 'undo', size: (btn / u) * 0.9, iconScale: 0.48, onClick: () => App.bus.emit('cmd', 'undo'), key: 'Z' });
       c.add(this.undoBtn);
     } else this.undoBtn = null;
     this.buildRewardChip();
@@ -433,6 +434,7 @@ export class UIScene extends Phaser.Scene {
     if (b.kind === 'echo') { icon = 'echoplus'; label = '+' + (b.bonus ? 1 : b.n) + ' ECHO'; col = 0xc9a4ff; }
     if (b.kind === 'skin') { icon = 'skin'; label = 'NEW SKIN'; col = UI_COL.gold; }
     if (b.kind === 'upgrade') { icon = b.icon; label = 'UPGRADE'; col = UI_COL.good; }
+    if (b.kind === 'new') { icon = b.icon; label = 'NEW'; }
     g.lineStyle(3 * u, col, 1);
     g.strokeRoundedRect(-bw / 2, -bh / 2, bw, bh, 20 * u);
     c.add(g);

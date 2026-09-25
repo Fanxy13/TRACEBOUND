@@ -276,6 +276,8 @@ class ButtonView extends View {
   update(dt) {
     const t = this.obj, g = this.g, x = this.x, y = this.y;
     const active = t.timer > 0;
+    if (!active && this.lastActive === false) return;
+    this.lastActive = active;
     g.clear();
     g.fillStyle(COL.metalDark, 1);
     g.fillRoundedRect(x - 15, y - 24, 30, 24, 5);
@@ -442,11 +444,16 @@ class BridgeView extends View {
     this.fill = r.on ? 1 : 0;
   }
 
-  reset() { this.fill = this.obj.on ? 1 : 0; }
+  reset() { this.fill = this.obj.on ? 1 : 0; this.drawnOnce = false; }
 
   update(dt) {
     const r = this.obj;
+    const prev = this.fill;
     this.fill += ((r.on ? 1 : 0) - this.fill) * Math.min(1, dt * 14);
+    this.frame = (this.frame || 0) + 1;
+    const settled = Math.abs(prev - this.fill) < 0.001;
+    if (settled && this.drawnOnce && (this.fill < 0.02 || this.frame % 3)) return;
+    this.drawnOnce = true;
     const g = this.g;
     g.clear();
     const cells = Math.round(r.w / T) * Math.round(r.h / T);
@@ -511,32 +518,34 @@ class LiftView extends View {
     this.stripe = 0;
   }
 
+  drawSlab() {
+    const r = this.obj, g = this.g, w = r.w, h = r.h;
+    g.clear();
+    g.fillStyle(0x2b3245, 1);
+    g.fillRoundedRect(0, 0, w, h, 4);
+    g.fillStyle(this.layer.accent, 0.5);
+    for (let sx = 2; sx < w - 8; sx += 12) g.fillTriangle(sx, h - 2, sx + 6, h - 2, sx + 10, 6);
+    g.fillStyle(0xd9e2f4, 1);
+    g.fillRoundedRect(0, 0, w, 5, 2);
+    g.fillStyle(this.layer.accent, 1);
+    g.fillRect(3, 1, w - 6, 1.5);
+    this.drawn = true;
+  }
+
   update(dt, world, alpha) {
     const r = this.obj;
+    if (!this.drawn) this.drawSlab();
     // Interpolate between the previous and current tick
     const px = r.x - r.vx * (1 - alpha), py = r.y - r.vy * (1 - alpha);
-    const g = this.g;
-    g.clear();
+    this.g.setPosition(px, py);
     const w = r.w, h = r.h;
-    g.fillStyle(0x2b3245, 1);
-    g.fillRoundedRect(px, py, w, h, 4);
-    if (r.moving) this.stripe = (this.stripe + dt * 40) % 12;
-    g.fillStyle(this.layer.accent, 0.5);
-    for (let sx = -12 + this.stripe; sx < w; sx += 12) {
-      const a = Math.max(px + 2, px + sx), b = Math.min(px + w - 2, px + sx + 6);
-      if (b > a) g.fillTriangle(a, py + h - 2, b, py + h - 2, Math.min(px + w - 2, b + 4), py + 6);
-    }
-    g.fillStyle(0xd9e2f4, 1);
-    g.fillRoundedRect(px, py, w, 5, 2);
-    g.fillStyle(this.layer.accent, 1);
-    g.fillRect(px + 3, py + 1, w - 6, 1.5);
     this.glow.setPosition(px + w / 2, py + 2).setAlpha(r.moving ? 0.5 : 0.25);
     const n = this.icons.length;
     this.icons.forEach((ic, i) => {
       ic.setPosition(px + w / 2 + (i - (n - 1) / 2) * 16, py + h + 10);
       ic.setTint(r.inputs[i].powered ? this.layer.accent : 0xffffff);
     });
-    void world;
+    void world; void dt;
   }
 }
 
@@ -570,6 +579,8 @@ class LaserView extends View {
     const r = this.obj;
     const on = r.active;
     this.timer -= dt;
+    if (this.timer > 0 && on === this.wasOn) return;
+    this.wasOn = on;
     if (this.timer <= 0) {
       this.timer = 0.05;
       this.pts = [];
