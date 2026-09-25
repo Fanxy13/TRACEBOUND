@@ -1,0 +1,17 @@
+{
+  "name": "tracebound",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TRACEBOUND - an echo-replay action puzzle for the web",
+  "scripts": {
+    "vendor": "node tools/vendor.mjs",
+    "build": "node tools/build.mjs",
+    "test": "node tests/run.mjs",
+    "serve": "http-server . -p 8080 -c-1"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "phaser": "3.90.0"
+  },
+  "type": "module"
+}
