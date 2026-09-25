@@ -6,6 +6,14 @@
   font-display: swap;
 }
 
+/* Safe-area insets (notches, rounded corners, home indicator) */
+:root {
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+}
+
 html, body {
   margin: 0;
   padding: 0;
@@ -23,9 +31,14 @@ html, body {
   -webkit-touch-callout: none;
 }
 
-#game {
+/* The game and its touch controls share one box that stays clear of the
+   safe-area insets; main.js sizes the canvas to the same box. */
+#game, #touch {
   position: fixed;
-  inset: 0;
+  top: var(--safe-t);
+  right: var(--safe-r);
+  bottom: var(--safe-b);
+  left: var(--safe-l);
 }
 
 #game canvas {
@@ -94,8 +107,6 @@ html, body {
 
 #touch {
   display: none;
-  position: fixed;
-  inset: 0;
   pointer-events: none;
   z-index: 10;
   --u: 72px;

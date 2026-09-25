@@ -12,10 +12,26 @@ import { BgScene } from './scenes/BgScene.js';
 import { GameScene } from './scenes/GameScene.js';
 import { UIScene } from './scenes/UIScene.js';
 
+// Safe-area insets in CSS px, resolved through the same custom properties
+// that position #game and #touch in the stylesheet.
+let insetProbe = null;
+function safeInsets() {
+  if (!insetProbe) {
+    insetProbe = document.createElement('div');
+    insetProbe.style.cssText = 'position:fixed;left:0;top:0;visibility:hidden;pointer-events:none;'
+      + 'padding:var(--safe-t,0px) var(--safe-r,0px) var(--safe-b,0px) var(--safe-l,0px)';
+    document.body.appendChild(insetProbe);
+  }
+  const cs = getComputedStyle(insetProbe);
+  const px = (v) => parseFloat(v) || 0;
+  return { t: px(cs.paddingTop), r: px(cs.paddingRight), b: px(cs.paddingBottom), l: px(cs.paddingLeft) };
+}
+
 function viewport() {
   const vv = window.visualViewport;
-  const W = Math.max(1, Math.round(vv ? vv.width : window.innerWidth));
-  const H = Math.max(1, Math.round(vv ? vv.height : window.innerHeight));
+  const s = safeInsets();
+  const W = Math.max(1, Math.round((vv ? vv.width : window.innerWidth) - s.l - s.r));
+  const H = Math.max(1, Math.round((vv ? vv.height : window.innerHeight) - s.t - s.b));
   return { W, H };
 }
 

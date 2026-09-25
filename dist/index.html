@@ -11,6 +11,12 @@
   font-style: normal;
   font-display: swap;
 }
+:root {
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+}
 html, body {
   margin: 0;
   padding: 0;
@@ -27,9 +33,12 @@ html, body {
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
 }
-#game {
+#game, #touch {
   position: fixed;
-  inset: 0;
+  top: var(--safe-t);
+  right: var(--safe-r);
+  bottom: var(--safe-b);
+  left: var(--safe-l);
 }
 #game canvas {
   display: block;
@@ -85,8 +94,6 @@ html, body {
 @keyframes trace { 0%, 100% { opacity: 0.35; transform: scaleX(0.4); } 50% { opacity: 1; transform: scaleX(1); } }
 #touch {
   display: none;
-  position: fixed;
-  inset: 0;
   pointer-events: none;
   z-index: 10;
   --u: 72px;
