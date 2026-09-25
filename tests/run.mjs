@@ -48,6 +48,7 @@ export function runSolution(def, stats = BASE, opts = {}) {
       }
     }
     totalTicks += world.tick;
+    session.harvestShards();
     if (world.status === 'complete') {
       completed = true;
       if (li !== sol.length - 1) log.push(`  note: completed early in loop ${li + 1}`);
@@ -62,6 +63,34 @@ export function runSolution(def, stats = BASE, opts = {}) {
     session.commit();
   }
   return { ok: completed, loops: sol.length, deaths, paradoxes, log, reason: 'not completed', session };
+}
+
+const UP = (up = {}) => ({
+  speedMul: 1 + 0.07 * (up.speed || 0),
+  range: BASE_RANGE + 24 * (up.focus || 0),
+  sync: up.sync || 0,
+  memory: 3 * (up.memory || 0),
+  extraEchoes: up.stability || 0,
+});
+
+/** Every bonus shard must be reachable by a verified scenario. */
+function checkBonus(def) {
+  const total = def.map.join('').split('*').length - 1;
+  if (!total) return null;
+  if (!def.bonus || !def.bonus.length) return 'bonus shard without scenario';
+  const got = new Set();
+  for (const b of def.bonus) {
+    const sol = b.sol === 'main' ? def.sol : b.sol;
+    const res = runSolution(def, UP(b.up), { solution: sol });
+    for (const s of res.session.newShards) got.add(s);
+    // Without the upgrade the shard must stay out of reach for upgrade scenarios
+    if (b.up && Object.keys(b.up).length) {
+      const base = runSolution(def, BASE, { solution: sol });
+      if (base.session.newShards.size) return 'bonus shard reachable without ' + Object.keys(b.up).join('+');
+    }
+  }
+  if (got.size < total) return `bonus shards collected ${got.size}/${total}`;
+  return null;
 }
 
 function main() {
@@ -83,6 +112,10 @@ function main() {
     let why = res.reason || '';
     if (ok && used > cap && cap > 0) { /* FIFO allows it, but flag long solutions */ }
     if (ok && def.echoes > 0 && res.loops - 1 > 8) { ok = false; why = 'too many loops'; }
+    if (ok) {
+      const bw = checkBonus(def);
+      if (bw) { ok = false; why = bw; }
+    }
     if (!ok) fail++;
     rows.push(`${ok ? 'ok  ' : 'FAIL'} ${def.id.padEnd(5)} ${String(def.name || '').padEnd(14)} loops=${res.loops ?? '-'} cap=${cap} time=${def.time || '-'}s final=${res.ticks ? (res.ticks / TPS).toFixed(1) + 's' : '-'} total=${res.totalTicks ? (res.totalTicks / TPS).toFixed(1) + 's' : '-'} ${res.paradoxes ? 'paradox=' + res.paradoxes : ''} ${ok ? '' : why}`);
     if (!ok || verbose) rows.push(...res.log);

@@ -46,7 +46,7 @@ export function parseLevel(def) {
       if (ch === 'X') { exit = { x: x * TILE, y: (y - 1) * TILE, w: TILE, h: TILE * 2, cx: x, cy: y }; continue; }
       if (ch === '*') { shards.push({ x: x * TILE + TILE / 2, y: y * TILE + TILE / 2 }); continue; }
       if (ch === 'o') { cores.push({ x: x * TILE + TILE / 2, y: (y + 1) * TILE }); continue; }
-      if (/[a-zA-Z]/.test(ch)) {
+      if (/[a-zA-Z]/.test(ch) && ch !== 'P' && ch !== 'X' && ch !== 'o' && ch !== 'v') {
         if (!letters.has(ch)) letters.set(ch, []);
         letters.get(ch).push([x, y]);
         continue;
