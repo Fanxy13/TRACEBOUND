@@ -202,7 +202,8 @@ export class UIScene extends Phaser.Scene {
     this.drawTimeline();
     this.updatePrompts(dt);
     if (this.rewardChip && this.gs.session) {
-      const want = this.gs.stuck >= 6 && (this.gs.state === 'ready' || this.gs.state === 'run') && !this.menuKind;
+      const need = Math.max(6, (this.def.sol.length - 1) * 2 + 3);
+      const want = this.gs.stuck >= need && (this.gs.state === 'ready' || this.gs.state === 'run') && !this.menuKind;
       this.rewardChip.setVisible(want);
     }
     if (this.autoNext && this.menuKind === 'complete') {
@@ -273,7 +274,12 @@ export class UIScene extends Phaser.Scene {
     const img = this.add.image(p.x, p.y, 'shardGem').setScale(0.9 * this.u).setDepth(950);
     this.tweens.add({
       targets: img, x: this.shardPos.x, y: this.shardPos.y, scale: 0.45 * this.u, duration: 650, ease: 'Cubic.easeIn',
-      onComplete: () => { img.destroy(); App.audio.play('pick'); },
+      onComplete: () => {
+        img.destroy();
+        App.audio.play('pick');
+        const t = txt(this, this.shardPos.x + 30 * this.u, this.shardPos.y + 26 * this.u, '+1', 18 * this.u, '#bff7ff').setDepth(950);
+        this.tweens.add({ targets: t, y: t.y + 14 * this.u, alpha: 0, delay: 500, duration: 500, onComplete: () => t.destroy() });
+      },
     });
   }
 
@@ -435,6 +441,7 @@ export class UIScene extends Phaser.Scene {
     if (b.kind === 'skin') { icon = 'skin'; label = 'NEW SKIN'; col = UI_COL.gold; }
     if (b.kind === 'upgrade') { icon = b.icon; label = 'UPGRADE'; col = UI_COL.good; }
     if (b.kind === 'new') { icon = b.icon; label = 'NEW'; }
+    if (b.kind === 'finale') { icon = 'star'; label = 'TRACEBOUND'; col = UI_COL.gold; }
     g.lineStyle(3 * u, col, 1);
     g.strokeRoundedRect(-bw / 2, -bh / 2, bw, bh, 20 * u);
     c.add(g);
@@ -458,7 +465,7 @@ export class UIScene extends Phaser.Scene {
     if (kind === 'pause') this.openPause();
     else if (kind === 'map') this.openMap(arg);
     else if (kind === 'lab') this.openLab(arg);
-    else if (kind === 'complete') this.openComplete(arg);
+    else if (kind === 'complete') this.openComplete(arg, true);
   }
 
   closeMenu(silent) {
@@ -642,6 +649,7 @@ export class UIScene extends Phaser.Scene {
     if (!returning) {
       // New skin / world rewards
       if (sm.newSkin) this.time.delayedCall(700, () => this.banner({ kind: 'skin', skin: sm.newSkin }));
+      if (d.def.id === LEVELS[LEVELS.length - 1].id && sm.first) this.time.delayedCall(2700, () => this.banner({ kind: 'finale' }));
       // Auto-continue unless the player interacts with the card
       const ag = this.add.graphics();
       c.add(ag);

@@ -21,6 +21,7 @@ npm install          # nur esbuild + phaser (für Build und Vendoring)
 npm run serve        # http://localhost:8080 (http-server)
 npm test             # prüft alle 48 Level headless (Lösbarkeit, Determinismus, Fuzz, Bonus)
 npm run build        # erzeugt dist/ (eine HTML- und eine JS-Datei)
+npm run vendor       # kopiert Phaser aus node_modules nach lib/ (nach einem Phaser-Update)
 ```
 
 Optionale Browser-Tests (brauchen Playwright und laufenden `npm run serve`):

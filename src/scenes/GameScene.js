@@ -569,10 +569,13 @@ export class GameScene extends Phaser.Scene {
 
   nextLevel() {
     const next = App.progress.nextAfter(this.def.id);
+    const id = next || this.def.id;
     this.state = 'idle';
     this.breakThen(() => {
-      if (next) this.loadLevel(next);
-      else App.bus.emit('openMap');
+      this.loadLevel(id);
+      // Everything cleared: open the map as a sub-menu of pause, so backing
+      // out of it always lands on a playable level.
+      if (!next) { this.pause(); App.bus.emit('openMap'); }
     });
   }
 

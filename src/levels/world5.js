@@ -72,7 +72,7 @@ export const WORLD5 = [
     sol: ['<8.5 s e r', '<3.5 .'],
   },
   {
-    id: '5-5', name: 'Chain', time: 10, echoes: 2, mirror: 14,
+    id: '5-5', name: 'Handoff', time: 10, echoes: 2, mirror: 14,
     map: [
       '############################',
       '#..........................#',
